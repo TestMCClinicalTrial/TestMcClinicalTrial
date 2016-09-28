@@ -1,5 +1,7 @@
 ﻿using MCClinicalTrialDemo.Models;
 using MultiChainLib;
+using MultiChainLib.Helper;
+using MultiChainLib.Model;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
