@@ -10,7 +10,7 @@ using System.Web.Mvc;
 
 namespace MCClinicalTrialDemo.Controllers
 {
-    public class RegisterController : Controller
+    public class RegisterController : BaseController
     {
         //
         // GET: /Register/
@@ -73,7 +73,7 @@ namespace MCClinicalTrialDemo.Controllers
 
             return new TrialModel()
             {
-                TrialKey = trialViewModel.TrialKey + "-" + Guid.NewGuid(),
+                TrialKey = trialViewModel.TrialKey, // + "-" + Guid.NewGuid(),
                 TrialData = hexString
             };
         }

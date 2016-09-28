@@ -23,8 +23,8 @@
                 <ul class="nav navbar-nav">
                     <li>@Html.ActionLink("Home", "Index", "Home")</li>
                     <li>@Html.ActionLink("Register Trial", "Create", "Register")</li>
-                    <li>@Html.ActionLink("Search Trial", "Get", "Search")</li>
-                    <li>@Html.ActionLink("Download History", "Get", "Search")</li>
+                    <li>@Html.ActionLink("Search Trial", "Index", "Search")</li>
+                    <li>@Html.ActionLink("Download History", "Index", "Download")</li>
                     <li>@Html.ActionLink("About", "About", "Home")</li>
                     <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
                 </ul>
@@ -42,6 +42,7 @@
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/bundles/site")
     @RenderSection("scripts", required: false)
 </body>
 </html>

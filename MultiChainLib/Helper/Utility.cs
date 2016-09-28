@@ -14,7 +14,7 @@ namespace MultiChainLib.Helper
             {
                 var sb = new StringBuilder();
 
-                var bytes = Encoding.Unicode.GetBytes(str);
+                var bytes = Encoding.UTF8.GetBytes(str);
                 foreach (var t in bytes)
                 {
                     sb.Append(t.ToString("X2"));
@@ -31,7 +31,7 @@ namespace MultiChainLib.Helper
                     bytes[i] = Convert.ToByte(hexString.Substring(i * 2, 2), 16);
                 }
 
-                return Encoding.Unicode.GetString(bytes); // returns: "Hello world" for "48656C6C6F20776F726C64"
+                return Encoding.UTF8.GetString(bytes); // returns: "Hello world" for "48656C6C6F20776F726C64"
             }
         }
     }

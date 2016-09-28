@@ -1,0 +1,38 @@
+﻿@using MultiChainLib;
+@using MultiChainLib.Model;
+@using Newtonsoft.Json;
+@model JsonRpcResponse<List<StreamResponse>>
+
+@{
+    ViewBag.Title = "Download Results";
+}
+
+<table class="table-bordered">
+    @foreach (var stream in Model.Result.ToList())
+    {
+        <tr>
+            <td>
+                @stream.TxId
+                @*Html.ActionLink(stream.TxId, "Details", "Search")*@
+            </td>
+            <td>
+                @stream.BlockTime
+            </td>
+            <td>
+                @stream.Key
+            </td>
+            <td>
+                @foreach (var publisher in stream.Publishers)
+                {
+                    <div>@publisher</div>
+                }
+            </td>
+            <td>
+                @MultiChainLib.Helper.Utility.HexadecimalEncoding.FromHexString(stream.Confirmations)
+            </td>
+            <td>
+                @Html.Raw(MultiChainLib.Helper.Utility.HexadecimalEncoding.FromHexString(stream.Data).Replace(",", @"<br />"))
+            </td>
+        </tr>
+    }
+</table>
