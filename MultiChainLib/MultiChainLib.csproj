@@ -52,6 +52,7 @@
     <Compile Include="Client\JsonRpcResponse.cs" />
     <Compile Include="Client\JsonRpcRequest.cs" />
     <Compile Include="Client\MultiChainClient.cs" />
+    <Compile Include="Helper\Utility.cs" />
     <Compile Include="Model\AddressGroupingResponse.cs" />
     <Compile Include="Model\AddressResponse.cs" />
     <Compile Include="Model\AssetBalanceResponse.cs" />
@@ -76,6 +77,7 @@
     <Compile Include="Model\ReceivedResponse.cs" />
     <Compile Include="Model\ScriptResponse.cs" />
     <Compile Include="Model\ScriptSigResponse.cs" />
+    <Compile Include="Model\KeyStream.cs" />
     <Compile Include="Model\StreamResponse.cs" />
     <Compile Include="Model\TransactionResponse.cs" />
     <Compile Include="Model\ScriptPubKeyResponse.cs" />

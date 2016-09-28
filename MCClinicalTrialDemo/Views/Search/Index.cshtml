@@ -1,0 +1,58 @@
+﻿@using MultiChainLib;
+@using MultiChainLib.Model;
+@using Newtonsoft.Json;
+@model JsonRpcResponse<List<StreamResponse>>
+
+@{
+    ViewBag.Title = "Search Results";
+}
+
+<h2>Search Results</h2>
+<div> 
+    @Model.Id <br/>
+    @Model.Error
+</div>
+<table class="table-bordered">
+    <tr>
+        <th>Download</th>
+        <th>Transaction Id</th>
+        <th>Block Time</th>
+        <th>Stream Key</th>
+        <th>Publishers</th>
+        <th>Confirmations</th>
+        <th>Data</th>
+    </tr>
+
+    @foreach (var stream in Model.Result.ToList())
+    {
+        <tr>
+            <td>
+                <button name="btnDownload" id="btnDownload">
+                    @Html.ActionLink("Download", "Download", "Search", new { streamStr = JsonConvert.SerializeObject(stream) }, null)
+                </button>
+            </td>
+            <td>
+                @stream.TxId
+                @*Html.ActionLink(stream.TxId, "Details", "Search")*@
+            </td>
+            <td>
+                @stream.BlockTime
+            </td>
+            <td>
+                @stream.Key
+            </td>
+            <td>
+                @foreach (var publisher in stream.Publishers)
+                {
+                    <div>@publisher</div>
+                }
+            </td>
+            <td>
+                @MultiChainLib.Helper.Utility.HexadecimalEncoding.FromHexString(stream.Confirmations)
+            </td>
+            <td>
+                @Html.Raw(MultiChainLib.Helper.Utility.HexadecimalEncoding.FromHexString(stream.Data).Replace(",", @"<br />"))
+            </td>
+        </tr>
+    }
+</table>
