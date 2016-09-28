@@ -1,7 +1,5 @@
 ﻿using MCClinicalTrialDemo.Models;
 using MultiChainLib;
-using MultiChainLib.Helper;
-using MultiChainLib.Model;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -17,10 +15,53 @@ namespace MCClinicalTrialDemo.Controllers
         // GET: /Search/
         public ActionResult Index()
         {
+            ICollection<TrialViewModel> list = new List<TrialViewModel>();
+
             MultiChainClient mcClient = GetMultiChainClient();
+
             var info = mcClient.ListStreamItems("TrialStream");
+
+            foreach (var item in info.Result)
+            {
+                string response = item.Data;
+                string convertedData = ConvertHex(response);
+
+                list.Add(JsonConvert.DeserializeObject<TrialViewModel>(convertedData));
+            }
+
             info.AssertOk();
-            return View(info);
+
+            return View(list);
+        }
+
+        public string ConvertHex(String hexString)
+        {
+            try
+            {
+                string ascii = string.Empty;
+
+                for (int i = 0; i < hexString.Length; i += 2)
+                {
+                    String hs = string.Empty;
+
+                    hs = hexString.Substring(i, 2);
+                    uint decval = System.Convert.ToUInt32(hs, 16);
+                    char character = System.Convert.ToChar(decval);
+                    ascii += character;
+
+                }
+
+                return ascii;
+            }
+            catch (Exception ex) { Console.WriteLine(ex.Message); }
+
+            return string.Empty;
+        }
+
+        [HttpGet]
+        public ActionResult Get()
+        {
+            return RedirectToAction("Index");
         }
 
         //

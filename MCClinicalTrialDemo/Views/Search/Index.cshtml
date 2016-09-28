@@ -1,58 +1,58 @@
-﻿@using MultiChainLib;
-@using MultiChainLib.Model;
-@using Newtonsoft.Json;
-@model JsonRpcResponse<List<StreamResponse>>
+﻿@model IEnumerable<MCClinicalTrialDemo.Models.TrialViewModel>
 
 @{
-    ViewBag.Title = "Search Results";
+    ViewBag.Title = "Search Clinical Trials";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Search Results</h2>
-<div> 
-    @Model.Id <br/>
-    @Model.Error
-</div>
-<table class="table-bordered">
-    <tr>
-        <th>Download</th>
-        <th>Transaction Id</th>
-        <th>Block Time</th>
-        <th>Stream Key</th>
-        <th>Publishers</th>
-        <th>Confirmations</th>
-        <th>Data</th>
+<h2>Search / List Clinical Trails </h2>
+<!--
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+    -->
+<p>
+    @Html.Label("Trial Key")    
+    @Html.TextBox("Trailkey")        
+    <input type="button" class="btn btn-default" value="Search" />
+</p>
+<table class="table">
+    <tr>        
+        <th>
+            @Html.DisplayNameFor(model => model.TrialDate)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.ResearchName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.ResearcherName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.ResearchOn)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Observation)
+        </th>
+        <th></th>
     </tr>
-
-    @foreach (var stream in Model.Result.ToList())
+    @foreach (var item in Model)
     {
-        <tr>
+        <tr>            
             <td>
-                <button name="btnDownload" id="btnDownload">
-                    @Html.ActionLink("Download", "Download", "Search", new { streamStr = JsonConvert.SerializeObject(stream) }, null)
-                </button>
+                @Html.DisplayFor(modelItem => item.TrialDate)
             </td>
             <td>
-                @stream.TxId
-                @*Html.ActionLink(stream.TxId, "Details", "Search")*@
+                @Html.DisplayFor(modelItem => item.ResearchName)
             </td>
             <td>
-                @stream.BlockTime
+                @Html.DisplayFor(modelItem => item.ResearcherName)
             </td>
             <td>
-                @stream.Key
+                @Html.DisplayFor(modelItem => item.ResearchOn)
             </td>
             <td>
-                @foreach (var publisher in stream.Publishers)
-                {
-                    <div>@publisher</div>
-                }
-            </td>
-            <td>
-                @MultiChainLib.Helper.Utility.HexadecimalEncoding.FromHexString(stream.Confirmations)
-            </td>
-            <td>
-                @Html.Raw(MultiChainLib.Helper.Utility.HexadecimalEncoding.FromHexString(stream.Data).Replace(",", @"<br />"))
-            </td>
+                @Html.DisplayFor(modelItem => item.Observation)
+            </td>           
         </tr>
     }
 </table>
