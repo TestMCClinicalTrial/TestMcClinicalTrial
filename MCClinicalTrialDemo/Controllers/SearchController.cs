@@ -150,7 +150,7 @@ namespace MCClinicalTrialDemo.Controllers
             var downloadViewModel = new DownloadViewModel()
             {
                 DownloadDate = DateTime.UtcNow,
-                DownloaderName = "TestUser1", //TODO: Get logged in Researcher name from UserContext
+                DownloaderName = HttpContext.User.Identity.Name, // "TestUser1", //TODO: Get logged in Researcher name from UserContext
                 TrialKey = trialViewModel.TrialKey,
             };
 

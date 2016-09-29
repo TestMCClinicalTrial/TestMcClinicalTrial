@@ -5,6 +5,7 @@ using System.Web.Mvc;
 
 namespace MCClinicalTrialDemo.Controllers
 {
+    [Authorize]
     public class BaseController : Controller
     {
         private MultiChainClient mcClient = null;

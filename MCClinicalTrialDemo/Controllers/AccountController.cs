@@ -9,6 +9,7 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.Owin.Security;
 using MCClinicalTrialDemo.Models;
+using System.Web.Security;
 
 namespace MCClinicalTrialDemo.Controllers
 {
@@ -45,10 +46,9 @@ namespace MCClinicalTrialDemo.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = await UserManager.FindAsync(model.UserName, model.Password);
-                if (user != null)
+                if (model.UserName != null)
                 {
-                    await SignInAsync(user, model.RememberMe);
+                    FormsAuthentication.SetAuthCookie(model.UserName, model.RememberMe);
                     return RedirectToLocal(returnUrl);
                 }
                 else
@@ -290,6 +290,7 @@ namespace MCClinicalTrialDemo.Controllers
         public ActionResult LogOff()
         {
             AuthenticationManager.SignOut();
+            FormsAuthentication.SignOut();
             return RedirectToAction("Index", "Home");
         }
 
