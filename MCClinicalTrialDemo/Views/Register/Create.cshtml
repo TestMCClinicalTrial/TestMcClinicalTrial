@@ -6,9 +6,9 @@
 
 <h2>RegisterTrial</h2>
 
-
-@using (Html.BeginForm()) 
+@using (Html.BeginForm("Create", "Register", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
+
     @Html.AntiForgeryToken()
 
     <div class="form-horizontal">
@@ -61,6 +61,14 @@
             <div class="col-md-10">
                 @Html.EditorFor(model => model.Observation)
                 @Html.ValidationMessageFor(model => model.Observation)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Document, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(m => m.Document, new { type = "file" })
+                @Html.ValidationMessageFor(model => model.Document)
             </div>
         </div>
 

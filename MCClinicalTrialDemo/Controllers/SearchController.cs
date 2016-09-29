@@ -1,12 +1,11 @@
 ﻿using MCClinicalTrialDemo.Models;
 using MultiChainLib;
 using MultiChainLib.Helper;
-using MultiChainLib.Model;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 
 namespace MCClinicalTrialDemo.Controllers
@@ -24,7 +23,7 @@ namespace MCClinicalTrialDemo.Controllers
             }
             else
             {
-                if (TempData["FilteredData"] != string.Empty)
+                if (TempData["FilteredData"] != null)
                 {
                     list = (ICollection<TrialViewModel>)TempData["FilteredData"];
                 }
@@ -35,15 +34,13 @@ namespace MCClinicalTrialDemo.Controllers
 
         private void RetriveData()
         {
-            MultiChainClient mcClient = new MultiChainClient("54.234.132.18", 2766, false, "multichainrpc", "testmultichain", "TrialRepository");
-
-            var info = mcClient.ListStreamItems("TrialStream");
+            var info = GetMultiChainClient().ListStreamItems(GetTrialStream());
 
             foreach (var item in info.Result)
             {
                 string response = item.Data;
 
-                string convertedData = MultiChainLib.Helper.Utility.HexadecimalEncoding.FromHexString(response);
+                string convertedData = Utility.HexadecimalEncoding.FromHexString(response);
 
                 try
                 {
@@ -51,11 +48,14 @@ namespace MCClinicalTrialDemo.Controllers
 
                     viewModel = JsonConvert.DeserializeObject<TrialViewModel>(convertedData);
 
-                    list.Add(viewModel);
+                    if (viewModel.TrialKey != null)
+                    {
+                        list.Add(viewModel);
+                    }
                 }
                 catch (Exception ex)
                 {
-
+                    ViewBag.Error = ex.ToString();
                 }
             }
             info.AssertOk();
@@ -63,27 +63,29 @@ namespace MCClinicalTrialDemo.Controllers
 
         private void RetriveData(string trialKey)
         {
-            MultiChainClient mcClient = new MultiChainClient("54.234.132.18", 2766, false, "multichainrpc", "testmultichain", "TrialRepository");
-
-            var info = mcClient.ListStreamKeyItems("TrialStream", trialKey);
+            var info = GetMultiChainClient().ListStreamKeyItems(GetTrialStream(), trialKey);
 
             foreach (var item in info.Result)
             {
                 string response = item.Data;
 
-                string convertedData = MultiChainLib.Helper.Utility.HexadecimalEncoding.FromHexString(response);
+                string convertedData = Utility.HexadecimalEncoding.FromHexString(response);
 
                 try
                 {
                     TrialViewModel viewModel = new TrialViewModel();
 
                     viewModel = JsonConvert.DeserializeObject<TrialViewModel>(convertedData);
+                    
+                    if (viewModel.TrialKey != null)
+                    {
+                        list.Add(viewModel);
+                    }
 
-                    list.Add(viewModel);
                 }
                 catch (Exception ex)
                 {
-
+                    ViewBag.Error = ex.ToString();
                 }
             }
             info.AssertOk();
@@ -119,26 +121,50 @@ namespace MCClinicalTrialDemo.Controllers
 
         //
         // GET: /Search/Details/5
-        public ActionResult Download(string streamStr)
+        public ActionResult Download(string selectedTrialKey)
         {
-            var stream = JsonConvert.DeserializeObject<StreamResponse>(streamStr);
+            var trialList = GetMultiChainClient().ListStreamKeyItems(GetTrialStream(), selectedTrialKey);
+            var trialModel = trialList.Result.FirstOrDefault();
+            var jsonTrialViewModel = Utility.HexadecimalEncoding.FromHexString(trialModel.Data);
+            var trialViewModel = JsonConvert.DeserializeObject<TrialViewModel>(jsonTrialViewModel);
+
+            if (string.IsNullOrEmpty(trialViewModel.DocumentUrl))
+            {
+                ViewBag.Error = "File was not uploaded for this trial.";
+                return View("Error");
+            }
+
+            var serverFileHash = Utility.GetHash(trialViewModel.DocumentUrl);
+            if (string.IsNullOrEmpty(serverFileHash))
+            {
+                ViewBag.Error = "File not found on the server. It could have been moved or deleted from the server.";
+                return View("Error");
+            }
+            if (serverFileHash != trialViewModel.DocumentHash)
+            {
+                ViewBag.Error = "File seems to have been corrupted or modified.";
+                return View("Error");
+            }
+
+            //continue with logging download request, and actual file download
             var downloadViewModel = new DownloadViewModel()
             {
                 DownloadDate = DateTime.UtcNow,
-                ResearcherName = "TestUser1", //TODO: Get logged in Researcher name from UserContext
-                TrialKey = stream.Key,
+                DownloaderName = "TestUser1", //TODO: Get logged in Researcher name from UserContext
+                TrialKey = trialViewModel.TrialKey,
             };
-            var trialModel = GetTrialModel(stream.Publishers[0], downloadViewModel);
 
-            //TODO: Uncomment once Download stream is created
-            //MultiChainClient mcClient = GetMultiChainClient();
-            //var info = mcClient.PublishStream("TrialDownloadStream", trialModel.TrialKey, trialModel.TrialData);
-            //info.AssertOk();
+            var downloadTrialModel = GetTrialModel(trialViewModel.ResearcherName, downloadViewModel);
 
-            //var ms = new System.IO.MemoryStream();
-            var bytes = System.Text.Encoding.UTF8.GetBytes(streamStr);
-            //ms.Write(bytes, 0, bytes.Count());
-            return File(bytes, "application/json", stream.Publishers[0] + "_ResearchDetails.txt");
+            //Create a download entry for the Current logged in User, requesting for the TrialKey file download
+            MultiChainClient mcClient = GetMultiChainClient();
+            var info = mcClient.PublishStream(GetTrialDownloadStream(), downloadTrialModel.TrialKey, downloadTrialModel.TrialData);
+            info.AssertOk();
+
+            //Download the selected file
+            string filePath = Path.Combine(Server.MapPath(trialViewModel.DocumentUrl));
+            var stream = System.IO.File.OpenRead(filePath);
+            return File(stream, "application/octet-stream", Path.GetFileName(trialViewModel.DocumentUrl));
         }
 
         private TrialModel GetTrialModel(string key, DownloadViewModel downloadViewModel)

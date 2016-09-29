@@ -1,8 +1,6 @@
 ﻿using MultiChainLib;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+using System.Configuration;
 using System.Web.Mvc;
 
 namespace MCClinicalTrialDemo.Controllers
@@ -13,10 +11,24 @@ namespace MCClinicalTrialDemo.Controllers
         protected MultiChainClient GetMultiChainClient(string chainName = "")
         {
             if (string.IsNullOrEmpty(chainName)) {
-                chainName = "TrialRepository";
+                chainName = ConfigurationManager.AppSettings["TrialRepository"];
             }
-            mcClient = new MultiChainClient("54.234.132.18", 2766, false, "multichainrpc", "testmultichain", chainName);
+            var multiChainIP = ConfigurationManager.AppSettings["MultiChainIPAddress"];
+            var multiChainPort = Convert.ToInt32(ConfigurationManager.AppSettings["MultiChainPort"]);
+            var multiChainUsername = ConfigurationManager.AppSettings["MultiChainUsername"];
+            var multiChainPassword = ConfigurationManager.AppSettings["MultiChainPassword"];
+            mcClient = new MultiChainClient(multiChainIP, multiChainPort, false, multiChainUsername, multiChainPassword, chainName);
             return mcClient;
         }
+
+        protected string GetTrialStream()
+        {
+            return ConfigurationManager.AppSettings["TrialStream"];
+        }
+        protected string GetTrialDownloadStream()
+        {
+            return ConfigurationManager.AppSettings["TrialDownloadStream"];
+        }
+
     }
 }

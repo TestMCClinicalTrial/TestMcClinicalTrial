@@ -1,4 +1,7 @@
-﻿using System;
+﻿using MCClinicalTrialDemo.Models;
+using MultiChainLib.Helper;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -11,16 +14,22 @@ namespace MCClinicalTrialDemo.Controllers
         // GET: Download
         public ActionResult Index()
         {
-            var publishersList = GetMultiChainClient().ListStreamKeys("TrialStream");
-            //var publishersList = GetMultiChainClient().ListStreamKeys("TrialDownloadStream");
+            var publishersList = GetMultiChainClient().ListStreamKeys(GetTrialDownloadStream());
             return View(publishersList);
         }
         
-        public ActionResult Details(string publisherKey)
+        public ActionResult Details(string researcherName)
         {
-            var client = GetMultiChainClient();
-            var downloadDetails = client.ListStreamKeyItems("TrialStream", publisherKey);
-            //var downloadDetails = client.ListStreamKeyItems("TrialDownloadStream", publisherKey);
+            List<DownloadViewModel> downloadDetails = new List<DownloadViewModel>();
+
+            var response = GetMultiChainClient().ListStreamKeyItems(GetTrialDownloadStream(), researcherName);
+            foreach (var trialModel in response.Result)
+            {
+                var jsonTrialViewModel = Utility.HexadecimalEncoding.FromHexString(trialModel.Data);
+                var downloadViewModel = JsonConvert.DeserializeObject<DownloadViewModel>(jsonTrialViewModel);
+                downloadDetails.Add(downloadViewModel);
+            }
+
             return PartialView(downloadDetails);
         }
     }

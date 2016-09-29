@@ -9,10 +9,10 @@
 
 <h2>Download Results</h2>
 <div>
-    <h4>Publishers:</h4>    
+    <h4>Researcher:</h4>    
 
     @Html.DropDownList(
-    "Publishers",
+    "ResearcherName",
     new SelectList(
         Model.Result.Select(x => new { Value = x.Key, Text = x.Key + " (" + x.Items + ")" }),
         "Value",

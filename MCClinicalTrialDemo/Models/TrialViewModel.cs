@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
@@ -30,6 +30,20 @@ namespace MCClinicalTrialDemo.Models
         [Required]
         [Display(Name = "Observation Details")]
         public string Observation { get; set; }
+
+        /// <summary>
+        /// Using this property only to hold and save the uploaded file
+        /// </summary>
+        [Required]
+        [Display(Name = "Document")]
+        [JsonIgnore]
+        public HttpPostedFileBase Document { get; set; }
+
+        [Display(Name = "Document Url")]
+        public string DocumentUrl { get; set; }
+
+        [Display(Name = "Document Hash")]
+        public string DocumentHash { get; set; }
 
     }
 }

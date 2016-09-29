@@ -15,7 +15,7 @@ namespace MCClinicalTrialDemo.Models
         [Display(Name = "Download Date")]
         public DateTime DownloadDate { get; set; }
         [Required]
-        [Display(Name = "Researcher Name")]
-        public string ResearcherName { get; set; }
+        [Display(Name = "Downloader Name")]
+        public string DownloaderName { get; set; }
     }
 }

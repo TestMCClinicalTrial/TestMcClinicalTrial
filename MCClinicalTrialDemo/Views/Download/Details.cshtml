@@ -1,37 +1,35 @@
 ﻿@using MultiChainLib;
 @using MultiChainLib.Model;
-@using Newtonsoft.Json;
-@model JsonRpcResponse<List<StreamResponse>>
+@using MCClinicalTrialDemo.Models;
+@model List<DownloadViewModel>
 
 @{
     ViewBag.Title = "Download Results";
 }
 
-<table class="table-bordered">
-    @foreach (var stream in Model.Result.ToList())
+<table class="table">
+    <tr>
+        <th>
+            @Html.LabelFor(model => model.FirstOrDefault().DownloadDate)
+        </th>
+        <th>
+            @Html.LabelFor(model => model.FirstOrDefault().DownloaderName)
+        </th>
+        <th>
+            @Html.LabelFor(model => model.FirstOrDefault().TrialKey)
+        </th>
+    </tr>
+    @foreach (var downloadVM in Model.ToList())
     {
         <tr>
             <td>
-                @stream.TxId
-                @*Html.ActionLink(stream.TxId, "Details", "Search")*@
+                @downloadVM.DownloadDate
             </td>
             <td>
-                @stream.BlockTime
+                @downloadVM.DownloaderName
             </td>
             <td>
-                @stream.Key
-            </td>
-            <td>
-                @foreach (var publisher in stream.Publishers)
-                {
-                    <div>@publisher</div>
-                }
-            </td>
-            <td>
-                @MultiChainLib.Helper.Utility.HexadecimalEncoding.FromHexString(stream.Confirmations)
-            </td>
-            <td>
-                @Html.Raw(MultiChainLib.Helper.Utility.HexadecimalEncoding.FromHexString(stream.Data).Replace(",", @"<br />"))
+                @downloadVM.TrialKey
             </td>
         </tr>
     }
