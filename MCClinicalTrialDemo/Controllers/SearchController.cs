@@ -13,51 +13,95 @@ namespace MCClinicalTrialDemo.Controllers
 {
     public class SearchController : BaseController
     {
+        ICollection<TrialViewModel> list = new List<TrialViewModel>();
         //
         // GET: /Search/
         public ActionResult Index()
         {
-            ICollection<TrialViewModel> list = new List<TrialViewModel>();
+            if (TempData["FilteredData"] == null)
+            {
+                RetriveData();
+            }
+            else
+            {
+                if (TempData["FilteredData"] != string.Empty)
+                {
+                    list = (ICollection<TrialViewModel>)TempData["FilteredData"];
+                }
+            }
 
-            MultiChainClient mcClient = GetMultiChainClient();
+            return View(list);
+        }
+
+        private void RetriveData()
+        {
+            MultiChainClient mcClient = new MultiChainClient("54.234.132.18", 2766, false, "multichainrpc", "testmultichain", "TrialRepository");
 
             var info = mcClient.ListStreamItems("TrialStream");
 
             foreach (var item in info.Result)
             {
                 string response = item.Data;
-                string convertedData = ConvertHex(response);
 
-                list.Add(JsonConvert.DeserializeObject<TrialViewModel>(convertedData));
-            }
+                string convertedData = MultiChainLib.Helper.Utility.HexadecimalEncoding.FromHexString(response);
 
-            info.AssertOk();
-
-            return View(list);
-        }
-
-        public string ConvertHex(String hexString)
-        {
-            try
-            {
-                string ascii = string.Empty;
-
-                for (int i = 0; i < hexString.Length; i += 2)
+                try
                 {
-                    String hs = string.Empty;
+                    TrialViewModel viewModel = new TrialViewModel();
 
-                    hs = hexString.Substring(i, 2);
-                    uint decval = System.Convert.ToUInt32(hs, 16);
-                    char character = System.Convert.ToChar(decval);
-                    ascii += character;
+                    viewModel = JsonConvert.DeserializeObject<TrialViewModel>(convertedData);
+
+                    list.Add(viewModel);
+                }
+                catch (Exception ex)
+                {
 
                 }
-
-                return ascii;
             }
-            catch (Exception ex) { Console.WriteLine(ex.Message); }
+            info.AssertOk();
+        }
 
-            return string.Empty;
+        private void RetriveData(string trialKey)
+        {
+            MultiChainClient mcClient = new MultiChainClient("54.234.132.18", 2766, false, "multichainrpc", "testmultichain", "TrialRepository");
+
+            var info = mcClient.ListStreamKeyItems("TrialStream", trialKey);
+
+            foreach (var item in info.Result)
+            {
+                string response = item.Data;
+
+                string convertedData = MultiChainLib.Helper.Utility.HexadecimalEncoding.FromHexString(response);
+
+                try
+                {
+                    TrialViewModel viewModel = new TrialViewModel();
+
+                    viewModel = JsonConvert.DeserializeObject<TrialViewModel>(convertedData);
+
+                    list.Add(viewModel);
+                }
+                catch (Exception ex)
+                {
+
+                }
+            }
+            info.AssertOk();
+        }
+        public ActionResult Search(string SearchText)
+        {
+            RetriveData(SearchText);
+
+            if (list.Count > 0)
+            {
+                TempData["FilteredData"] = list;
+            }
+            else
+            {
+                TempData["FilteredData"] = string.Empty;
+            }
+
+            return RedirectToAction("Index");
         }
 
         [HttpGet]
