@@ -14,7 +14,7 @@ using System.Web.Security;
 namespace MCClinicalTrialDemo.Controllers
 {
     [Authorize]
-    public class AccountController : Controller
+    public class AccountController : BaseController
     {
         public AccountController()
             : this(new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(new ApplicationDbContext())))
@@ -46,9 +46,10 @@ namespace MCClinicalTrialDemo.Controllers
         {
             if (ModelState.IsValid)
             {
-                if (model.UserName != null)
+                if (base.AllowedUsers.ContainsKey(model.UserName))
                 {
                     FormsAuthentication.SetAuthCookie(model.UserName, model.RememberMe);
+                    base.CurrentUserRole = base.AllowedUsers[model.UserName];
                     return RedirectToLocal(returnUrl);
                 }
                 else
@@ -289,6 +290,8 @@ namespace MCClinicalTrialDemo.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult LogOff()
         {
+            Session.Abandon();
+            Session.Clear();
             AuthenticationManager.SignOut();
             FormsAuthentication.SignOut();
             return RedirectToAction("Index", "Home");
